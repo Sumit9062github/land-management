@@ -1,0 +1,139 @@
+.tabbed-form-wrapper {
+  max-width: 750px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.1);
+}
+
+.tab-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.tab-buttons button {
+  flex: 1;
+  margin-right: 10px;
+  padding: 12px;
+  font-weight: bold;
+  background-color: #e2e2e2;
+  border: none;
+  cursor: pointer;
+}
+
+.tab-buttons button:last-child {
+  margin-right: 0;
+}
+
+.tab-buttons button:hover,
+.tab-buttons button:focus {
+  background-color: #ccc;
+}
+
+.form-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-layout label {
+  font-weight: bold;
+}
+
+.form-layout input,
+.form-layout select {
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.save-button {
+  background-color: #cc0000;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  margin-top: 15px;
+  cursor: pointer;
+  width:100px;
+}
+
+.save-button:hover {
+  background-color: #a60000;
+}
+
+.main-title {
+  text-align: center;
+  color: #000;
+  font-size: 28px;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+/* Table styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: #fff;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+  font-size: 16px;
+}
+
+th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+/* Optional: spacing for button and table */
+.action-buttons {
+  margin-top: 10px;
+}
+
+button {
+  padding: 5px 12px;
+  margin-top: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+table {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  margin-right: 8px;
+  border: 1px solid #ccc;
+  background-color: #f2f2f2;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.tab-button.active {
+  background-color: #0066cc;
+  color: white;
+  font-weight: bold;
+  border-color: #0066cc;
+}
+
+.tab-button.active:focus,
+.tab-button.active:active {
+  background-color: #0066cc;
+  color: white;
+  font-weight: bold;
+}
+
+.tab-button {
+  transition: background-color 0.3s ease;
+}
