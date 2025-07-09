@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import '../css/form.css';
 
-export default function TabbedForm() {
+
+
+export default function TabbedForm({ onLogout}) {
   const [activeTab, setActiveTab] = useState('main');
   const [formData, setFormData] = useState({});
   const [entries, setEntries] = useState([]);
@@ -136,6 +138,9 @@ export default function TabbedForm() {
     onClick={() => setActiveTab('pending')}
   >
     भूमि अभिलेख यांचेकडे प्रलंबित
+  </button>
+   <button onClick={onLogout} style={{ marginLeft: 'auto', backgroundColor: '#c00', color: '#fff' }}>
+    बाहेर पडा
   </button>
 </div>
 
