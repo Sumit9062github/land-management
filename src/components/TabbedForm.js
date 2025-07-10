@@ -1,18 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import '../css/form.css';
+import axios from 'axios';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 
 
-export default function TabbedForm({ onLogout}) {
+
+export default function TabbedForm({ onLogout }) {
   const [activeTab, setActiveTab] = useState('main');
   const [formData, setFormData] = useState({});
   const [entries, setEntries] = useState([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // 'success' or 'error'
+
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('mainEntries') || '[]');
-    setEntries(saved);
+    fetchEntries();
   }, []);
+
+  const fetchEntries = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/entries');
+
+      const mapped = response.data.map(entry => ({
+        ...entry,
+        tabType: entry.entryType, 
+      }));
+
+      setEntries(mapped);
+    } catch (err) {
+      console.error('Error fetching entries:', err);
+    }
+  };
+
+
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -23,30 +57,47 @@ export default function TabbedForm({ onLogout}) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.pdf) return;
 
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       const newEntry = {
         ...formData,
+        tabType: activeTab,
         pdfName: formData.pdf.name,
-        pdfUrl: reader.result
+        pdfUrl: reader.result,
+        entryType: activeTab 
       };
-      const updated = [...entries, newEntry];
-      setEntries(updated);
-      localStorage.setItem('mainEntries', JSON.stringify(updated));
-      setFormData({});
+
+      try {
+        const res = await axios.post('http://localhost:8080/api/entries', newEntry);
+        setEntries([...entries, res.data]);
+        setFormData({});
+        showSnackbar('नोंदणी यशस्वीरित्या जतन झाली!', 'success');
+        await fetchEntries();
+      } catch (err) {
+        console.error('Error saving entry:', err);
+        showSnackbar('नोंदणी जतन करताना त्रुटी आली.', 'error');
+      }
+
     };
     reader.readAsDataURL(formData.pdf);
   };
 
-  const deleteRow = (index) => {
-    const updated = [...entries];
-    updated.splice(index, 1);
-    setEntries(updated);
-    localStorage.setItem('mainEntries', JSON.stringify(updated));
+  const deleteRow = async (id, index) => {
+    try {
+      await axios.delete(`http://localhost:8080/api/entries/${id}`);
+      const updated = [...entries];
+      updated.splice(index, 1);
+      setEntries(updated);
+      showSnackbar('नोंदणी यशस्वीरित्या हटवली!', 'success');
+      await fetchEntries();
+    } catch (err) {
+      console.error('Error deleting entry:', err);
+      showSnackbar('नोंदणी हटवताना त्रुटी आली.', 'error');
+    }
   };
 
   const exportToExcel = () => {
@@ -118,31 +169,48 @@ export default function TabbedForm({ onLogout}) {
       <h1 className="main-title">भूसंपादन व्यवस्थापन प्रणाली</h1>
 
       <div className="tab-buttons">
-  <button
-    type="button"
-    className={activeTab === 'main' ? 'tab-button active' : 'tab-button'}
-    onClick={() => setActiveTab('main')}
-  >
-    मुख्य नोंदणी
-  </button>
-  <button
-    type="button"
-    className={activeTab === 'valuation' ? 'tab-button active' : 'tab-button'}
-    onClick={() => setActiveTab('valuation')}
-  >
-    थेट खरेदी/मूल्यांकन प्रस्ताव
-  </button>
-  <button
-    type="button"
-    className={activeTab === 'pending' ? 'tab-button active' : 'tab-button'}
-    onClick={() => setActiveTab('pending')}
-  >
-    भूमि अभिलेख यांचेकडे प्रलंबित
-  </button>
-   <button onClick={onLogout} style={{ marginLeft: 'auto', backgroundColor: '#c00', color: '#fff' }}>
-    बाहेर पडा
-  </button>
-</div>
+        <button
+          type="button"
+          className={activeTab === 'main' ? 'tab-button active' : 'tab-button'}
+          onClick={() => setActiveTab('main')}
+        >
+          मुख्य नोंदणी
+        </button>
+        <button
+          type="button"
+          className={activeTab === 'valuation' ? 'tab-button active' : 'tab-button'}
+          onClick={() => setActiveTab('valuation')}
+        >
+          थेट खरेदी/मूल्यांकन प्रस्ताव
+        </button>
+        <button
+          type="button"
+          className={activeTab === 'pending' ? 'tab-button active' : 'tab-button'}
+          onClick={() => setActiveTab('pending')}
+        >
+          भूमि अभिलेख यांचेकडे प्रलंबित
+        </button>
+        <button onClick={onLogout} style={{ marginLeft: 'auto', backgroundColor: '#c00', color: '#fff' }}>
+          बाहेर पडा
+        </button>
+
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={4000}
+          onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        >
+          <MuiAlert
+            elevation={6}
+            variant="filled"
+            onClose={handleSnackbarClose}
+            severity={snackbarSeverity}
+            sx={{ width: '100%' }}
+          >
+            {snackbarMessage}
+          </MuiAlert>
+        </Snackbar>
+      </div>
 
 
       <form className="form-layout" onSubmit={handleSubmit}>
@@ -162,36 +230,50 @@ export default function TabbedForm({ onLogout}) {
         <thead>
           <tr>
             <th>अ.क्र.</th>
+            <th>टॅब प्रकार</th>
             <th>प्रयोजन</th>
             <th>प्रस्ताव</th>
-            <th>क्षेत्र</th>
+            <th>क्षेत्र (हे.आर.)</th>
+            <th>मूल्यांकन क्षेत्र (हे.)</th>
+            <th>खरेदी क्षेत्र (हे.)</th>
+            <th>गाव/तालुका/जिल्हा</th>
             <th>शेरा</th>
             <th>PDF</th>
             <th>हटवा</th>
           </tr>
         </thead>
         <tbody>
-          {entries.map((entry, index) => (
-            <tr key={index}>
-              <td>{index + 1}</td>
-              <td>{entry.purpose || '-'}</td>
-              <td>{entry.proposal || '-'}</td>
-              <td>{entry.area || entry.valuatedArea || entry.purchasedArea || '-'}</td>
-              <td>{entry.remarks || '-'}</td>
-              <td>
-                {entry.pdfUrl ? (
-                  <a href={entry.pdfUrl} target="_blank" rel="noopener noreferrer">
-                    {entry.pdfName}
-                  </a>
-                ) : (
-                  '-'
-                )}
-              </td>
-              <td>
-                <button onClick={() => deleteRow(index)}>हटवा</button>
-              </td>
-            </tr>
-          ))}
+          {entries
+            .filter((entry) => entry.tabType === activeTab)
+            .map((entry, index) => (
+              <tr key={entry.id || index}>
+                <td>{index + 1}</td>
+                <td>{entry.tabType || '-'}</td>
+                <td>{entry.purpose || '-'}</td>
+                <td>{entry.proposal || '-'}</td>
+                <td>{entry.area || '-'}</td>
+                <td>{entry.valuatedArea || '-'}</td>
+                <td>{entry.purchasedArea || '-'}</td>
+                <td>{entry.location || '-'}</td>
+                <td>{entry.remarks || '-'}</td>
+                <td>
+                  {entry.pdfName ? (
+                    <a
+                      href={`http://localhost:8080/api/entries/${entry.id}/pdf`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {entry.pdfName}
+                    </a>
+                  ) : (
+                    "-"
+                  )}
+                </td>
+                <td>
+                  <button onClick={() => deleteRow(entry.id, index)}>हटवा</button>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </div>
