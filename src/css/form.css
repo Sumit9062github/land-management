@@ -137,3 +137,14 @@ table {
 .tab-button {
   transition: background-color 0.3s ease;
 }
+
+.edit-mode-banner {
+  background-color: #ffefc2;
+  color: #8a6d3b;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #f0ad4e;
+  border-radius: 4px;
+  font-weight: bold;
+  text-align: center;
+}
