@@ -32,7 +32,7 @@ export default function TabbedForm({ onLogout }) {
 
   const fetchEntries = async () => {
     try {
-      //const response = await axios.get('http://localhost:8080/api/entries');
+     // const response = await axios.get('http://localhost:8080/api/entries');
      const response= await axios.get('https://illustrious-fulfillment-production.up.railway.app/api/entries');
       const mapped = response.data.map(entry => ({
         ...entry,
@@ -69,12 +69,12 @@ export default function TabbedForm({ onLogout }) {
 
       try {
         if (editMode) {
-          //await axios.put(`http://localhost:8080/api/entries/${editingId}`, payload);
+        //  await axios.put(`http://localhost:8080/api/entries/${editingId}`, payload);
           await axios.put(`https://illustrious-fulfillment-production.up.railway.app/api/entries/${editingId}`, payload);
 
           showSnackbar('नोंदणी यशस्वीरित्या अद्यतनित झाली!', 'success');
         } else {
-          //await axios.post('http://localhost:8080/api/entries', payload);
+       //   await axios.post('http://localhost:8080/api/entries', payload);
           await axios.post('https://illustrious-fulfillment-production.up.railway.app/api/entries', payload);
           showSnackbar('नोंदणी यशस्वीरित्या जतन झाली!', 'success');
         }
@@ -98,7 +98,7 @@ export default function TabbedForm({ onLogout }) {
 
   const deleteRow = async (id, index) => {
     try {
-      // await axios.delete(`http://localhost:8080/api/entries/${id}`);
+     //  await axios.delete(`http://localhost:8080/api/entries/${id}`);
       await axios.delete(`https://illustrious-fulfillment-production.up.railway.app/api/entries/${id}`);
       const updated = [...entries];
       updated.splice(index, 1);
@@ -333,11 +333,17 @@ export default function TabbedForm({ onLogout }) {
           <td>{entry.location || '-'}</td>
           <td>{entry.remarks || '-'}</td>
           <td>
-            {entry.pdfName ? (
-              <a href={`http://localhost:8080/api/entries/${entry.id}/pdf`} target="_blank" rel="noopener noreferrer">
-                {entry.pdfName}
-              </a>
-            ) : "-"}
+            {entry.pdfName && (
+  <a
+    href={`http://localhost:8080/api/entries/${entry.id}/pdf`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="btn btn-sm btn-outline-primary"
+  >
+    PDF डाउनलोड करा
+  </a>
+)}
+
           </td>
           <td>
             <button onClick={() => handleEdit(entry)}>संपादन</button>{' '}
